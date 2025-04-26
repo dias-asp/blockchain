@@ -119,12 +119,7 @@ contract Lottery is Ownable {
             roundToParticipants[currentRound]
         ))) % roundToParticipants[currentRound].length;
 
-        /* После The Merge (PoS):**
-- `block.difficulty` была переименована в `block.prevrandao`
-- Значение генерируется на основе RANDAO - протокола, где валидаторы совместно создают случайное число
-- Каждый валидатор предоставляет свое значение, которые затем комбинируются
-- Один валидатор не может предсказать или манипулировать итоговым значением
-*/
+     
 
         /* конструктор
          // запрос
@@ -137,8 +132,6 @@ contract Lottery is Ownable {
         );
 
 // Колбэк вызываемый Chainlink VRF
-        1. Нужна подписка на Chainlink VRF
-        2. Требуется оплата LINK токенами за использование оракула
 
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
         require(lotteryState == LotteryState.DRAWING_WINNER, "Wrong state");

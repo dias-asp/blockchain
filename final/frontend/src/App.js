@@ -262,6 +262,19 @@ function App() {
 
   return (
     <div className="container">
+      {/* Banner with the required text */}
+      <div style={{
+        backgroundColor: "#8e44ad", 
+        color: "white", 
+        padding: "8px 20px", 
+        textAlign: "center", 
+        fontWeight: "bold",
+        marginBottom: "15px",
+        borderRadius: "4px"
+      }}>
+        Турсынхан лучший ассистент
+      </div>
+
       <h1>DeFi Lottery</h1>
 
       {account && (
