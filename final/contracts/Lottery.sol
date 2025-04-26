@@ -9,38 +9,23 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @dev A decentralized lottery system where users can buy tickets and a random winner is selected
  */
 contract Lottery is Ownable {
-    // Ticket price in wei
     uint256 public ticketPrice;
-    
-    // Minimum number of tickets required to draw a winner
     uint256 public minTickets;
-    
-    // Current lottery round
     uint256 public currentRound;
-    
-    // Timestamp when the lottery started
     uint256 public lotteryStartTime;
-    
-    // Duration of the lottery in seconds
     uint256 public lotteryDuration;
     
-    // Mapping from round to participants
+
     mapping(uint256 => address[]) public roundToParticipants;
-    
-    // Mapping from address to number of tickets purchased in current round
     mapping(address => uint256) public ticketsPurchased;
-    
-    // Mapping from round to winner
     mapping(uint256 => address) public roundToWinner;
-    
-    // Mapping from round to prize amount
     mapping(uint256 => uint256) public roundToPrize;
     
-    // Lottery state
+
     enum LotteryState { OPEN, CLOSED, DRAWING_WINNER }
     LotteryState public lotteryState;
     
-    // Events
+
     event TicketPurchased(address indexed buyer, uint256 amount);
     event WinnerSelected(address indexed winner, uint256 prize, uint256 round);
     event LotteryStarted(uint256 startTime, uint256 duration, uint256 round);
@@ -87,11 +72,9 @@ contract Lottery is Ownable {
 
         emit LotteryEnded(block.timestamp, currentRound);
 
-        // If enough tickets were sold, draw a winner
         if (roundToParticipants[currentRound].length >= minTickets) {
             drawWinner();
         } else {
-            // If not enough tickets were sold, refund all participants
             refundAll();
             lotteryState = LotteryState.CLOSED;
         }
@@ -107,12 +90,11 @@ contract Lottery is Ownable {
         require(_numTickets > 0, "Must purchase at least one ticket");
         require(msg.value == ticketPrice * _numTickets, "Incorrect ETH amount");
 
-        // Add participant to the current round
+
         for (uint256 i = 0; i < _numTickets; i++) {
             roundToParticipants[currentRound].push(msg.sender);
         }
 
-        // Update tickets purchased
         ticketsPurchased[msg.sender] += _numTickets;
 
         emit TicketPurchased(msg.sender, _numTickets);
@@ -128,33 +110,80 @@ contract Lottery is Ownable {
         require(lotteryState == LotteryState.DRAWING_WINNER, "Not in drawing state");
         require(roundToParticipants[currentRound].length >= minTickets, "Not enough participants");
 
-        // Calculate total prize
         uint256 totalPrize = address(this).balance;
 
-        // Generate a random index
+
         uint256 randomIndex = uint256(keccak256(abi.encodePacked(
             block.timestamp,
             block.prevrandao,
             roundToParticipants[currentRound]
         ))) % roundToParticipants[currentRound].length;
 
-        // Select winner
+        /* После The Merge (PoS):**
+- `block.difficulty` была переименована в `block.prevrandao`
+- Значение генерируется на основе RANDAO - протокола, где валидаторы совместно создают случайное число
+- Каждый валидатор предоставляет свое значение, которые затем комбинируются
+- Один валидатор не может предсказать или манипулировать итоговым значением
+*/
+
+        /* конструктор
+         // запрос
+        s_requestId = COORDINATOR.requestRandomWords(
+            keyHash,
+            s_subscriptionId,
+            requestConfirmations,
+            callbackGasLimit,
+            numWords
+        );
+
+// Колбэк вызываемый Chainlink VRF
+        1. Нужна подписка на Chainlink VRF
+        2. Требуется оплата LINK токенами за использование оракула
+
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
+        require(lotteryState == LotteryState.DRAWING_WINNER, "Wrong state");
+
+        uint256 totalPrize = address(this).balance;
+
+
+        uint256 randomIndex = randomWords[0] % roundToParticipants[currentRound].length;
         address winner = roundToParticipants[currentRound][randomIndex];
 
-        // Record winner and prize
+
         roundToWinner[currentRound] = winner;
         roundToPrize[currentRound] = totalPrize;
 
-        // Transfer prize to winner
+
         (bool success, ) = winner.call{value: totalPrize}("");
         require(success, "Transfer failed");
 
         emit WinnerSelected(winner, totalPrize, currentRound);
 
-        // Reset for next round
+
         lotteryState = LotteryState.CLOSED;
 
-        // Reset tickets purchased
+
+        for (uint256 i = 0; i < roundToParticipants[currentRound].length; i++) {
+            address participant = roundToParticipants[currentRound][i];
+            ticketsPurchased[participant] = 0;
+    */
+
+        address winner = roundToParticipants[currentRound][randomIndex];
+
+
+        roundToWinner[currentRound] = winner;
+        roundToPrize[currentRound] = totalPrize;
+
+
+        (bool success, ) = winner.call{value: totalPrize}("");
+        require(success, "Transfer failed");
+
+        emit WinnerSelected(winner, totalPrize, currentRound);
+
+
+        lotteryState = LotteryState.CLOSED;
+
+
         for (uint256 i = 0; i < roundToParticipants[currentRound].length; i++) {
             address participant = roundToParticipants[currentRound][i];
             ticketsPurchased[participant] = 0;

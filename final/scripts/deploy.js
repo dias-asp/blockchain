@@ -1,14 +1,14 @@
 const { ethers, network, run } = require("hardhat");
 
 async function main() {
-  // Get the deployer account
+
   const [deployer] = await ethers.getSigners();
   console.log("Deploying contracts with account:", deployer.address);
 
-  // Initial parameters for the lottery
-  const ticketPrice = ethers.parseEther("0.01"); // 0.01 ETH per ticket
-  const minTickets = 3; // Minimum 3 tickets to draw a winner
-  const lotteryDuration = 60 * 60 * 24 * 7; // 7 days in seconds
+
+  const ticketPrice = ethers.parseEther("0.01");
+  const minTickets = 3;
+  const lotteryDuration = 60 * 60 * 24 * 7;
 
   console.log("Deploying contracts with the following parameters:");
   console.log(ticketPrice, minTickets, lotteryDuration);

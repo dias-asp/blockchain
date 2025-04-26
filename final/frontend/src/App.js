@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import './index.css';
 
-// ABI will be replaced with the actual ABI after contract compilation
+
 const LOTTERY_ABI = [
   "function owner() view returns (address)",
   "function ticketPrice() view returns (uint256)",
@@ -21,11 +21,11 @@ const LOTTERY_ABI = [
   "function endLottery()"
 ];
 
-// Contract address will be replaced after deployment
+
 const LOTTERY_CONTRACT_ADDRESS = "0xec840Bb379B7447Aa17E3b7E44cde33EE592e802";
 
 function App() {
-  // State variables
+
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [contract, setContract] = useState(null);
@@ -43,7 +43,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Connect to MetaMask
+
   const connectWallet = async () => {
     try {
       if (window.ethereum) {
@@ -57,17 +57,17 @@ function App() {
         setContract(contract);
         setAccount(accounts[0]);
 
-        // Check if connected account is the owner
+        // смотрит owner или нет
         const owner = await contract.owner();
         setIsOwner(owner.toLowerCase() === accounts[0].toLowerCase());
 
-        // Setup event listener for account changes
+        // смотрит изменения в контаркте
         window.ethereum.on('accountsChanged', (accounts) => {
           setAccount(accounts[0]);
           window.location.reload();
         });
 
-        // Setup event listener for chain changes
+
         window.ethereum.on('chainChanged', () => {
           window.location.reload();
         });
@@ -84,13 +84,13 @@ function App() {
     }
   };
 
-  // Load contract data
+
   const loadContractData = async () => {
     if (contract) {
       try {
         setLoading(true);
 
-        // Get contract data
+
         const ticketPrice = await contract.ticketPrice();
         const minTickets = await contract.minTickets();
         const currentRound = await contract.currentRound();
@@ -99,7 +99,7 @@ function App() {
         const participants = await contract.getNumberOfParticipants();
         const ticketsBought = await contract.ticketsPurchased(account);
 
-        // Update state
+
         setTicketPrice(ethers.formatEther(ticketPrice));
         setMinTickets(Number(minTickets));
         setCurrentRound(Number(currentRound));
@@ -108,7 +108,7 @@ function App() {
         setParticipants(Number(participants));
         setTicketsBought(Number(ticketsBought));
 
-        // Load past winners if there are any
+
         if (currentRound > 0) {
           const winners = [];
           for (let i = 1; i <= currentRound; i++) {
@@ -137,7 +137,7 @@ function App() {
     }
   };
 
-  // Buy tickets
+
   const buyTickets = async () => {
     if (contract && numTickets > 0) {
       try {
@@ -148,7 +148,7 @@ function App() {
         const tx = await contract.buyTickets(numTickets, { value: price });
         await tx.wait();
 
-        // Reload contract data
+
         await loadContractData();
 
         setLoading(false);
@@ -160,7 +160,7 @@ function App() {
     }
   };
 
-  // Start lottery (owner only)
+
   const startLottery = async () => {
     if (contract && isOwner) {
       try {
@@ -170,7 +170,7 @@ function App() {
         const tx = await contract.startLottery();
         await tx.wait();
 
-        // Reload contract data
+
         await loadContractData();
 
         setLoading(false);
@@ -182,7 +182,7 @@ function App() {
     }
   };
 
-  // End lottery (owner only)
+
   const endLottery = async () => {
     if (contract && isOwner) {
       try {
@@ -192,7 +192,7 @@ function App() {
         const tx = await contract.endLottery();
         await tx.wait();
 
-        // Reload contract data
+
         await loadContractData();
 
         setLoading(false);
@@ -204,7 +204,7 @@ function App() {
     }
   };
 
-  // Format time remaining
+
   const formatTimeRemaining = (seconds) => {
     if (seconds <= 0) return "Ended";
 
@@ -216,7 +216,7 @@ function App() {
     return `${days}d ${hours}h ${minutes}m ${secs}s`;
   };
 
-  // Get lottery state text
+
   const getLotteryStateText = (state) => {
     switch (state) {
       case 0: return "Open";
@@ -226,13 +226,13 @@ function App() {
     }
   };
 
-  // Helper function to truncate Ethereum address
+
   const truncateAddress = (address) => {
     if (!address) return "";
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   };
 
-  // Effect to connect wallet and load data on component mount
+
   useEffect(() => {
     const init = async () => {
       const connected = await connectWallet();
@@ -243,7 +243,7 @@ function App() {
 
     init();
 
-    // Set up interval to update time remaining
+
     const interval = setInterval(() => {
       if (timeRemaining > 0) {
         setTimeRemaining(prev => prev - 1);
@@ -253,7 +253,7 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // Effect to reload data when contract or account changes
+
   useEffect(() => {
     if (contract && account) {
       loadContractData();
