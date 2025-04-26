@@ -19,7 +19,7 @@ async function main() {
   await lottery.waitForDeployment();*/
 
   // const lotteryAddress = await lottery.getAddress();
-  const lotteryAddress = "0xeB889B31cfF310975224770fce61762255bdd401";
+  const lotteryAddress = "0xec840Bb379B7447Aa17E3b7E44cde33EE592e802";
   console.log("Lottery contract deployed at:", lotteryAddress);
 
   /*

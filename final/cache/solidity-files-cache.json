@@ -1,9 +1,9 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "C:\\Stuff\\blockchain\\final\\contracts\\Lottery.sol": {
-      "lastModificationDate": 1745343251288,
-      "contentHash": "fe4a8f1f37446a90beea4ebf0f47a66f",
+    "C:\\Users\\VictoriaStafievskaya\\Desktop\\webdev\\blockchain\\final\\contracts\\Lottery.sol": {
+      "lastModificationDate": 1745636236239,
+      "contentHash": "282d04bdd6fe9c6bb642888befa7cbb1",
       "sourceName": "contracts/Lottery.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -39,8 +39,8 @@
         "Lottery"
       ]
     },
-    "C:\\Stuff\\blockchain\\final\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {
-      "lastModificationDate": 1745343098905,
+    "C:\\Users\\VictoriaStafievskaya\\Desktop\\webdev\\blockchain\\final\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {
+      "lastModificationDate": 1745636291110,
       "contentHash": "d3c790edc9ccf808a17c5a6cd13614fd",
       "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
       "solcConfig": {
@@ -77,8 +77,8 @@
         "Ownable"
       ]
     },
-    "C:\\Stuff\\blockchain\\final\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
-      "lastModificationDate": 1745343098447,
+    "C:\\Users\\VictoriaStafievskaya\\Desktop\\webdev\\blockchain\\final\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
+      "lastModificationDate": 1745636290024,
       "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {

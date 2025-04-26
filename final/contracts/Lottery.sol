@@ -82,12 +82,11 @@ contract Lottery is Ownable {
      */
     function endLottery() external onlyOwner {
         require(lotteryState == LotteryState.OPEN, "Lottery is not open");
-        require(block.timestamp >= lotteryStartTime + lotteryDuration, "Lottery duration not yet passed");
-        
+
         lotteryState = LotteryState.DRAWING_WINNER;
-        
+
         emit LotteryEnded(block.timestamp, currentRound);
-        
+
         // If enough tickets were sold, draw a winner
         if (roundToParticipants[currentRound].length >= minTickets) {
             drawWinner();
@@ -97,7 +96,7 @@ contract Lottery is Ownable {
             lotteryState = LotteryState.CLOSED;
         }
     }
-    
+
     /**
      * @dev Purchase tickets for the lottery
      * @param _numTickets Number of tickets to purchase
@@ -107,18 +106,18 @@ contract Lottery is Ownable {
         require(block.timestamp < lotteryStartTime + lotteryDuration, "Lottery has ended");
         require(_numTickets > 0, "Must purchase at least one ticket");
         require(msg.value == ticketPrice * _numTickets, "Incorrect ETH amount");
-        
+
         // Add participant to the current round
         for (uint256 i = 0; i < _numTickets; i++) {
             roundToParticipants[currentRound].push(msg.sender);
         }
-        
+
         // Update tickets purchased
         ticketsPurchased[msg.sender] += _numTickets;
-        
+
         emit TicketPurchased(msg.sender, _numTickets);
     }
-    
+
     /**
      * @dev Draw a winner for the current lottery round
      * Uses block timestamp, difficulty, and participant addresses to generate randomness
@@ -128,40 +127,40 @@ contract Lottery is Ownable {
     function drawWinner() internal {
         require(lotteryState == LotteryState.DRAWING_WINNER, "Not in drawing state");
         require(roundToParticipants[currentRound].length >= minTickets, "Not enough participants");
-        
+
         // Calculate total prize
         uint256 totalPrize = address(this).balance;
-        
+
         // Generate a random index
         uint256 randomIndex = uint256(keccak256(abi.encodePacked(
             block.timestamp,
             block.prevrandao,
             roundToParticipants[currentRound]
         ))) % roundToParticipants[currentRound].length;
-        
+
         // Select winner
         address winner = roundToParticipants[currentRound][randomIndex];
-        
+
         // Record winner and prize
         roundToWinner[currentRound] = winner;
         roundToPrize[currentRound] = totalPrize;
-        
+
         // Transfer prize to winner
         (bool success, ) = winner.call{value: totalPrize}("");
         require(success, "Transfer failed");
-        
+
         emit WinnerSelected(winner, totalPrize, currentRound);
-        
+
         // Reset for next round
         lotteryState = LotteryState.CLOSED;
-        
+
         // Reset tickets purchased
         for (uint256 i = 0; i < roundToParticipants[currentRound].length; i++) {
             address participant = roundToParticipants[currentRound][i];
             ticketsPurchased[participant] = 0;
         }
     }
-    
+
     /**
      * @dev Refund all participants if minimum tickets were not sold
      */
@@ -169,7 +168,7 @@ contract Lottery is Ownable {
         for (uint256 i = 0; i < roundToParticipants[currentRound].length; i++) {
             address participant = roundToParticipants[currentRound][i];
             uint256 refundAmount = ticketsPurchased[participant] * ticketPrice;
-            
+
             if (refundAmount > 0) {
                 ticketsPurchased[participant] = 0;
                 (bool success, ) = participant.call{value: refundAmount}("");
@@ -177,7 +176,7 @@ contract Lottery is Ownable {
             }
         }
     }
-    
+
     /**
      * @dev Get the number of participants in the current round
      * @return Number of participants
@@ -185,7 +184,7 @@ contract Lottery is Ownable {
     function getNumberOfParticipants() external view returns (uint256) {
         return roundToParticipants[currentRound].length;
     }
-    
+
     /**
      * @dev Get the winner of a specific round
      * @param _round Round number
@@ -195,29 +194,29 @@ contract Lottery is Ownable {
         require(_round > 0 && _round <= currentRound, "Invalid round");
         return (roundToWinner[_round], roundToPrize[_round]);
     }
-    
+
     /**
      * @dev Check if lottery is active
      * @return True if lottery is open, false otherwise
      */
     function isLotteryActive() external view returns (bool) {
-        return lotteryState == LotteryState.OPEN && 
+        return lotteryState == LotteryState.OPEN &&
                block.timestamp < lotteryStartTime + lotteryDuration;
     }
-    
+
     /**
      * @dev Get time remaining in current lottery
      * @return Time remaining in seconds
      */
     function getTimeRemaining() external view returns (uint256) {
-        if (lotteryState != LotteryState.OPEN || 
+        if (lotteryState != LotteryState.OPEN ||
             block.timestamp >= lotteryStartTime + lotteryDuration) {
             return 0;
         }
-        
+
         return (lotteryStartTime + lotteryDuration) - block.timestamp;
     }
-    
+
     /**
      * @dev Update ticket price (only owner)
      * @param _newPrice New ticket price in wei
@@ -227,7 +226,7 @@ contract Lottery is Ownable {
         require(_newPrice > 0, "Price must be greater than 0");
         ticketPrice = _newPrice;
     }
-    
+
     /**
      * @dev Update minimum tickets required (only owner)
      * @param _newMinTickets New minimum tickets
@@ -237,7 +236,7 @@ contract Lottery is Ownable {
         require(_newMinTickets > 1, "Minimum tickets must be greater than 1");
         minTickets = _newMinTickets;
     }
-    
+
     /**
      * @dev Update lottery duration (only owner)
      * @param _newDuration New duration in seconds
@@ -248,3 +247,5 @@ contract Lottery is Ownable {
         lotteryDuration = _newDuration;
     }
 }
+
+//10000000000000 3 3600
